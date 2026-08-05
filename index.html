@@ -5,8 +5,25 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Game Zone</title>
-  <script type="module" crossorigin src="/GameZone-frontend/assets/index-7DfEjLcf.js"></script>
-  <link rel="stylesheet" crossorigin href="/GameZone-frontend/assets/index-CqG4S1Tm.css">
+
+  <script>
+    (function (l) {
+      if (l.search[1] === "/") {
+        var decoded = l.search
+          .slice(1)
+          .replace(/~and~/g, "&");
+
+        window.history.replaceState(
+          null,
+          null,
+          decoded + l.hash
+        );
+      }
+    })(window.location);
+  </script>
+
+  <script type="module" crossorigin src="/GameZone-frontend/assets/index-Box6rbD_.js"></script>
+  <link rel="stylesheet" crossorigin href="/GameZone-frontend/assets/index-QWi3i7I6.css">
 </head>
 
 <body>
