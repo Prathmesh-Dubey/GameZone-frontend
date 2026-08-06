@@ -5,12 +5,15 @@ import { Capacitor } from '@capacitor/core';
 import LandingPage from './pages/LandingPage';
 import Login from './pages/Login';
 import DashboardApp from './pages/DashboardApp';
+import MobileSplash from './pages/MobileSplash';
+
+const isNative = Capacitor.isNativePlatform();
 
 const router = createBrowserRouter(
   [
     {
       path: '/',
-      element: <LandingPage />,
+      element: isNative ? <MobileSplash /> : <LandingPage />,
     },
     {
       path: '/login',
