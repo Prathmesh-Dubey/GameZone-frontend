@@ -64,6 +64,11 @@ export default function PlayerProfile({ userId, games = [], onBack }: PlayerProf
         if (scoreTime > latest) latest = scoreTime;
       });
     }
+
+    if (user?.createdAt) {
+      const userCreated = new Date(user.createdAt).getTime();
+      if (userCreated > latest) latest = userCreated;
+    }
     
     return latest;
   };
