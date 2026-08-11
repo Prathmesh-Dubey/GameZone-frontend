@@ -10,6 +10,18 @@ const getHeaders = (): HeadersInit => ({
 });
 
 const handleResponse = async <T>(response: Response): Promise<T> => {
+  try {
+    const userStr = localStorage.getItem('gamezone_user');
+    if (userStr) {
+      const user = JSON.parse(userStr);
+      if (user && user.id) {
+        localStorage.setItem(`lastActive_${user.id}`, Date.now().toString());
+      }
+    }
+  } catch (e) {
+    // Ignore
+  }
+
   if (!response.ok) {
     const errorText = await response.text();
     let errorMessage = "";

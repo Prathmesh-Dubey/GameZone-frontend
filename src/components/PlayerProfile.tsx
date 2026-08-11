@@ -44,6 +44,55 @@ export default function PlayerProfile({ userId, games = [], onBack }: PlayerProf
     );
   }
 
+  const getLatestActivityTimestamp = (id: string) => {
+    let latest = 0;
+    try {
+      const lastActiveStr = localStorage.getItem(`lastActive_${id}`);
+      if (lastActiveStr) {
+        latest = parseInt(lastActiveStr, 10);
+      }
+    } catch (e) {}
+
+    if (profile?.updatedAt) {
+      const profileUpdated = new Date(profile.updatedAt).getTime();
+      if (profileUpdated > latest) latest = profileUpdated;
+    }
+
+    if (rawScores && rawScores.length > 0) {
+      rawScores.forEach(score => {
+        const scoreTime = new Date(score.playedAt).getTime();
+        if (scoreTime > latest) latest = scoreTime;
+      });
+    }
+    
+    return latest;
+  };
+
+  const checkOnlineStatus = (id: string) => {
+    const lastActive = getLatestActivityTimestamp(id);
+    if (lastActive > 0) {
+      const fiveMinutes = 5 * 60 * 1000;
+      return Date.now() - lastActive < fiveMinutes;
+    }
+    return false;
+  };
+
+  const getLastActiveText = (id: string) => {
+    const lastActive = getLatestActivityTimestamp(id);
+    if (lastActive > 0) {
+      const diff = Date.now() - lastActive;
+      const minutes = Math.floor(diff / (1000 * 60));
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+      if (minutes < 60) return `Last seen ${minutes}m ago`;
+      if (hours < 24) return `Last seen ${hours}h ago`;
+      if (days === 1) return `Last seen 1 day ago`;
+      return `Last seen ${days} days ago`;
+    }
+    return 'Offline';
+  };
+
   // Use accent color from profile or user DTO if available
   const activeAccentColor = profile?.accentColor || user.accentColor || "";
 
@@ -85,13 +134,21 @@ export default function PlayerProfile({ userId, games = [], onBack }: PlayerProf
                 />
               </div>
               <div className="mt-0 md:mt-5 flex-1 min-w-0">
-                <h3 className="text-md font-extrabold text-slate-900 dark:text-white flex flex-wrap items-center justify-start md:justify-center gap-1.5">
+                <h3 className="text-md md:text-lg font-extrabold text-slate-900 dark:text-white flex items-center justify-start md:justify-center gap-2 truncate">
                   <span className="truncate">{user.username}</span>
-                  <span className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-400 text-[8px] font-bold px-2 py-0.5 rounded uppercase shrink-0">
+                </h3>
+                <div className="flex flex-wrap items-center justify-start md:justify-center gap-2 mt-1.5">
+                  <span className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-400 text-[9px] font-bold px-2 py-0.5 rounded uppercase shrink-0">
                     {user.role || "player"}
                   </span>
-                </h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400 font-mono mt-0.5 truncate">{user.email}</p>
+                  <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded border shrink-0 ${checkOnlineStatus(user.id) ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800' : 'bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700'}`}>
+                    <span className={`w-1.5 h-1.5 rounded-full ${checkOnlineStatus(user.id) ? 'bg-green-500 shadow-[0_0_4px_#22c55e] animate-pulse' : 'bg-slate-400 dark:bg-slate-500'}`}></span>
+                    <span className={`text-[9px] font-bold uppercase tracking-wider ${checkOnlineStatus(user.id) ? 'text-green-700 dark:text-green-400' : 'text-slate-500 dark:text-slate-400'}`}>
+                      {checkOnlineStatus(user.id) ? 'Online' : getLastActiveText(user.id)}
+                    </span>
+                  </div>
+                </div>
+                <p className="text-xs text-slate-500 dark:text-slate-400 font-mono mt-1.5 md:mt-2 truncate">{user.email}</p>
               </div>
             </div>
 
